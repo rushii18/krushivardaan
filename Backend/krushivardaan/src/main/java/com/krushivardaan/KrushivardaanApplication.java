@@ -1,4 +1,4 @@
-package com.example.krushivardaan;
+package com.krushivardaan;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
