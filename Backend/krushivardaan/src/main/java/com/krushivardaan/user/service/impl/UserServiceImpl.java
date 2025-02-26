@@ -22,9 +22,16 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto registerUser(UserDto userDto) {
 
-		User user = User.builder().fristName(userDto.getFristName()).lastName(userDto.getLastName())
+		Optional<User> updateUser = userRepository.findByEmail(userDto.getEmail());
+
+		if (updateUser.isPresent()) {
+			throw new UserException(GlobleErrorCodes.UserErrorCode.U2.getMessage(),
+					GlobleErrorCodes.UserErrorCode.U1.toString(), LocalDateTime.now());
+		}
+
+		User user = User.builder().firstName(userDto.getFirstName()).lastName(userDto.getLastName())
 				.contactNo(userDto.getContactNo()).email(userDto.getEmail()).gender(userDto.getGender())
-				.createdBy(LocalDateTime.now()).updatedOn(null).build();
+				.password(userDto.getPassword()).createdBy(LocalDateTime.now()).updatedOn(LocalDateTime.now()).build();
 
 		userRepository.save(user);
 
@@ -37,14 +44,13 @@ public class UserServiceImpl implements UserService {
 		Optional<User> updateUser = userRepository.findByEmail(userDto.getEmail());
 		if (updateUser.isEmpty()) {
 			throw new UserException(GlobleErrorCodes.UserErrorCode.U1.getMessage(),
-					GlobleErrorCodes.UserErrorCode.U1.getMessage(), LocalDateTime.now());
+					GlobleErrorCodes.UserErrorCode.U1.toString(), LocalDateTime.now());
 		}
 
 		User user = updateUser.get();
 
-		user = user.builder().fristName(userDto.getFristName()).lastName(userDto.getLastName())
-				.contactNo(userDto.getContactNo()).email(userDto.getEmail()).gender(userDto.getGender())
-				.createdBy(LocalDateTime.now()).updatedOn(null).build();
+		user = user.builder().firstName(userDto.getFirstName()).lastName(userDto.getLastName())
+				.contactNo(userDto.getContactNo()).gender(userDto.getGender()).updatedOn(LocalDateTime.now()).build();
 
 		userRepository.save(user);
 
@@ -56,7 +62,7 @@ public class UserServiceImpl implements UserService {
 		Optional<User> updateUser = userRepository.findByEmail(userName);
 		if (updateUser.isEmpty()) {
 			throw new UserException(GlobleErrorCodes.UserErrorCode.U1.getMessage(),
-					GlobleErrorCodes.UserErrorCode.U1.getMessage(), LocalDateTime.now());
+					GlobleErrorCodes.UserErrorCode.U1.toString(), LocalDateTime.now());
 		}
 
 		User user = updateUser.get();
@@ -64,6 +70,24 @@ public class UserServiceImpl implements UserService {
 		userRepository.delete(user);
 		return "Delete User + " + userName;
 
+	}
+
+	@Override
+	public String changeUserPassword(String email) {
+
+		Optional<User> updateUser = userRepository.findByEmail(email);
+		if (updateUser.isEmpty()) {
+			throw new UserException(GlobleErrorCodes.UserErrorCode.U1.getMessage(),
+					GlobleErrorCodes.UserErrorCode.U1.toString(), LocalDateTime.now());
+		}
+
+		User passwordUpdateduser = updateUser.get();
+
+		passwordUpdateduser = passwordUpdateduser.builder().password(email).build();
+
+		userRepository.save(passwordUpdateduser);
+
+		return "Password change Successful  " + email;
 	}
 
 }

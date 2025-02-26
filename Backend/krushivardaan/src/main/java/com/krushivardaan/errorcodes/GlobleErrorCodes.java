@@ -10,6 +10,7 @@ public class GlobleErrorCodes {
 
 		UserErrorCode(String message) {
 			this.message = message;
+
 		}
 
 		public String getMessage() {
